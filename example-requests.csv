@@ -1,0 +1,76 @@
+Date,type,json
+10-05-2021,creation,"{
+        ""request"":""creation"",
+        ""job_id"":""3ad7c9f7-a48c-45b0-9ebf-6f0627b365e7"",
+        ""owner_username"":""TestHestesen#3456"",
+        ""owner_project"":""332e9fd7-9046-4491-a71b-92365f506afe"",
+        ""base_image"":""ubuntu20-04"",
+        ""machine_template"":""uc-general-medium"",
+        ""total_grant_allocation"":""5090 DKK"",
+        ""request_parameters"":{
+                ""pubKey"":{
+                        ""value"":""sdf"",
+                        ""type"":""text""
+                }
+        }
+}"
+15-05-2021,delete,"{
+        ""request"":""deletion"",
+        ""job_id"":""3ad7c9f7-a48c-45b0-9ebf-6f0627b365e7"",
+        ""owner_username"":""TestHestesen#3456"",
+        ""owner_project"":""9d82504a-643f-4d99-9f23-b4bb5efc0620"",
+        ""base_image"":""ubuntu20-04"",
+        ""machine_template"":""uc-general-medium"",
+        ""total_grant_allocation"":""0 DKK"",
+        ""request_parameters"":{
+                ""pubKey"":{
+                        ""value"":""sdf"",
+                        ""type"":""text""
+                }
+        }
+}"
+09-05-2021,creation,"{
+	""request"":""creation"",
+	""job_id"":""469befa6-49a7-4a83-92c3-ec7a4a7a5ed6"",
+	""owner_username"":""KalleKoloskopi#3456"",
+	""owner_project"":null,
+	""base_image"":""ubuntu20-04"",
+	""machine_template"":""uc-t4-1"",
+	""total_grant_allocation"":""1000 DKK"",
+	""request_parameters"":{
+		""pubKey"":{
+			""value"":""fgd"",
+			""type"":""text""
+		}
+	}
+}"
+13-05-2021,deletion,"{
+	""request"":""deletion"",
+	""job_id"":""469befa6-49a7-4a83-92c3-ec7a4a7a5ed6"",
+	""owner_username"":""KalleKoloskopi#3456"",
+	""owner_project"":""48d4b265-77d0-41c3-9e68-845d14ac51b1"",
+	""base_image"":""ubuntu20-04"",
+	""machine_template"":""uc-t4-1"",
+	""total_grant_allocation"":""1000 DKK"",
+	""request_parameters"":{
+		""pubKey"":{
+			""value"":""sdfg"",
+			""type"":""text""
+		}
+	}
+}"
+14-05-2021,creation,"{
+	""request"":""creation"",
+	""job_id"":""beedf28d-1379-46de-b027-6ecf7ebcefd3"",
+	""owner_username"":""PoulPapkas#1235"",
+	""owner_project"":""d852d08f-ef29-45ab-ac35-d566e564823d"",
+	""base_image"":""ubuntu20-04"",
+	""machine_template"":""uc-t4-1"",
+	""total_grant_allocation"":""1000 DKK"",
+	""request_parameters"":{
+		""pubKey"":{
+			""value"":"""",
+			""type"":""text""
+		}
+	}
+}"
