@@ -16,6 +16,8 @@ TYPE_1_HPC_CENTER_ID = "f0679faa-242e-11eb-3aba-b187bcbee6d4"
 TYPE_1_HPC_SUB_CENTER_ID_AAU = "1003d37e-242f-11eb-186e-0722713fb0ad"
 AAU_TYPE_1_CLOUD_PROJECT_ID = "550f9fde-2411-4731-973a-2afb2c61e971"
 
+END_DATE = datetime.datetime(2021, 5, 13, 4, 0, 0)
+
 
 def read_file(filename):
     with open(filename) as f:
@@ -54,7 +56,7 @@ def get_instances(input):
         date = datetime.datetime.strptime(i["date"], "%d-%m-%Y")
 
         if i["request"] == "creation":
-            end_date = datetime.datetime.now() + datetime.timedelta(days=1)
+            end_date = END_DATE + datetime.timedelta(days=1)
             end_date = end_date.replace(hour=0, minute=0, second=0, microsecond=0)
 
             others = filter(lambda x: x["job_id"] == i["job_id"] and x["request"] == "deletion", input)
@@ -139,15 +141,15 @@ def create_daily_summaries(instances):
 
     start_date = min([i["date"] for i in instances])
 
-    for d in range((datetime.datetime.now() - start_date).days + 1):
+    for d in range((END_DATE - start_date).days + 1):
         day = start_date + datetime.timedelta(days=d)
         end_day = day + datetime.timedelta(days=1)
 
         day_instances = list(filter(lambda x: x["date"] <= day and x["endDate"] >= day, instances))
 
-        for d in day_instances:
-            d["endDate"] = end_day
-            d["date"] = day
+        for day_instance in day_instances:
+            day_instance["endDate"] = end_day
+            day_instance["date"] = day
 
         if day_instances:
             center_daily = handle_instances(day_instances)
@@ -161,8 +163,8 @@ def create_daily_summaries(instances):
 
 def handle_instances(input):
     center = {
-        "hpcCenterId": "",
-        "subHPCCenterId": "",
+        "hpcCenterId": TYPE_1_HPC_CENTER_ID,
+        "subHPCCenterId": TYPE_1_HPC_SUB_CENTER_ID_AAU,
         "startPeriod": None,
         "endPeriod": None,
         "maxCPUCoreTime": 0,
