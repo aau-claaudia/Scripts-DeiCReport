@@ -11,12 +11,72 @@ parser.add_argument('input', type=str,
 
 args = parser.parse_args()
 
-UNIVERSITY_ID = 5
+# We do not know the uni of users
+UNIVERSITY_ID = ""
+#UNIVERSITY_ID = 5
 TYPE_1_HPC_CENTER_ID = "f0679faa-242e-11eb-3aba-b187bcbee6d4"
 TYPE_1_HPC_SUB_CENTER_ID_AAU = "1003d37e-242f-11eb-186e-0722713fb0ad"
 AAU_TYPE_1_CLOUD_PROJECT_ID = "550f9fde-2411-4731-973a-2afb2c61e971"
 
-END_DATE = datetime.datetime(2021, 5, 13, 4, 0, 0)
+# These must be manually changed for each report
+# Dates used for report summer/may 2021
+#START_DATE = datetime.datetime(2021, 5, 25, 4, 0, 0)
+#END_DATE = datetime.datetime(2021, 8, 10, 4, 0, 0)
+# Dates used for november 10th 2021 report
+START_DATE = datetime.datetime(2021, 8, 10, 4, 0, 0)
+END_DATE = datetime.datetime(2021, 11, 8, 4, 0, 0)
+UNIVERSITY = {
+    "EmilianoMolinaro#3798": "SDU",
+    "TobiasLindstrømJensen#5428": "AAU",
+    "LarsNondal#5646": "CBS",
+    "KennethChristianEnevoldsen#8950": "AAU",
+    "BarbaraPlank#8720": "ITU",
+    "StephanPieterSmuts#7097": "AU",
+    "LeonBondeLarsen#7973": "SDU",
+    "FedericaLoVerso#9084": "SDU",
+    "FlorianEchtler#5102": "AAU",
+    "MilosKovacevic#8140": "CBS",
+    "SergeyKucheryavskiy#1056": "AAU",
+    "RossDeansKristensen-McLachlan#1975": "AU",
+    "MikeKroghTerkelsen#5262": "SDU",
+    "RebeccaAdam#1002": "SDU",
+    "HenrikSchulz#6398": "SDU",
+    "ChristopherJosephBailey#5369": "AU",
+    "KunQian#5823": "SDU",
+    "NoraHollenstein#6874": "KU",
+    "PeterJensenHusen#5737": "SDU",
+    "SomnathMazumdar#4005": "CBS",
+    "JonathanHvithamarRystrøm#2240": "AU",
+    "BjørkDitlevMarcherLarsen#5135": "SDU",
+    "DanielDüringKnudsen#4634": "AU",
+    "LeoVitasovic#2870": "KU",
+    "RalfZimmermann#0996": "SDU",
+    "MartinAumüller#6983": "ITU",
+    "JakubKlust#7707": "RUC",
+    "ManexAguirrezabalZabaleta#0913": "KU",
+    "TestHestesen#3456": "AAU",
+    "KalleKoloskopi#3456": "AAU",
+    "PoulPapkas#1235": "AAU"
+}
+
+UNIVERSITY_IDS = {
+    "UNKNOWN": 0,
+    "KU": 1,
+    "AU": 2,
+    "SDU": 3,
+    "DTU": 4,
+    "AAU": 5,
+    "RUC": 6,
+    "ITU": 7,
+    "CBS": 8
+}
+
+# ACCESSTYPE
+# UNKNOWN(0),
+# LOCAL(1),
+# NATIONAL(2),
+# SANDBOX(3),
+# INTERNATIONAL(4);
 
 
 def read_file(filename):
@@ -65,12 +125,45 @@ def get_instances(input):
             if deletion:
                 end_date = datetime.datetime.strptime(deletion["date"], "%d-%m-%Y")
 
-            i["endDate"] = end_date
-            i["date"] = date
+            # Filter instances on global startdate.
+            # Remove if enddate is before global startdate
+            # else set start date to global startdate
 
-            instances.append(i)
+            print("end", end_date, START_DATE)
+            if end_date > START_DATE and date < END_DATE:
+                if date < START_DATE:
+                    date = START_DATE
+
+                i["endDate"] = end_date
+                i["date"] = date
+                instances.append(i)
+                print("INSTANCE", i)
+            else:
+                i["endDate"] = end_date
+                i["date"] = date
+                print("CUT INSTANCE", i)
 
     return instances
+
+
+def find_project(instances):
+    project = ""
+    for instance in instances:
+        if instance["owner_project"]:
+            if project:
+                print("project already set... overwriting", instance["owner_project"], project)
+            project = instance["owner_project"]
+
+    return project
+
+
+def find_projects(instances):
+    projects = []
+    for instance in instances:
+        if instance["owner_project"]:
+            projects.append(instance["owner_project"])
+
+    return projects
 
 
 def create_persons(input):
@@ -80,6 +173,7 @@ def create_persons(input):
     persons = set([i["owner_username"] for i in input])
 
     for person in persons:
+        print(person)
         person_requests = filter(lambda x: x["owner_username"] == person, input)
 
         instances = get_instances(person_requests)
@@ -89,12 +183,14 @@ def create_persons(input):
             result = handle_instances(instances)
 
             person_summary = {
-                "deicProjectId": AAU_TYPE_1_CLOUD_PROJECT_ID,
+                "orcid": get_orcid(person),
+                "localId": person,
+                "deicProjectId": find_project(instances),
                 "hpcCenterId": TYPE_1_HPC_CENTER_ID,
                 "subHPCCenterId": TYPE_1_HPC_SUB_CENTER_ID_AAU,
-                "universityId": UNIVERSITY_ID,
-                "orcid": get_orcid(person),
-                "accessType": 1,
+                "universityId": UNIVERSITY_IDS[UNIVERSITY[person]],
+                "idExpanded": "",
+                "accessType": 1 if UNIVERSITY[person] == "AAU" else 2,
                 "accessStartDate": result["startPeriod"],
                 "accessEndDate": result["endPeriod"],
                 "cpuCoreTimeAssigned": result["maxCPUCoreTime"],
@@ -110,6 +206,7 @@ def create_persons(input):
             persons_summaries.append(person_summary)
 
             # This is for each day
+            print("DAIAIALSLSLSLSLSLSLSLSLSLSLSL")
             person_dailys = create_daily_summaries(instances)
             for p in person_dailys:
                 center_daily = {
@@ -117,8 +214,11 @@ def create_persons(input):
                     "subHPCCenterId": TYPE_1_HPC_SUB_CENTER_ID_AAU,
                     "date": p["startPeriod"],
                     "orcid": get_orcid(person),
-                    "deicProjectId": AAU_TYPE_1_CLOUD_PROJECT_ID,
-                    "universityId": UNIVERSITY_ID,
+                    "localId": person,
+                    "deicProjectId": p["ownerProject"],
+                    "universityId": UNIVERSITY_IDS[UNIVERSITY[person]],
+                    "idExpanded": "",
+                    "accessType": 1 if UNIVERSITY[person] == "AAU" else 2,
                     "maxCPUCoreTime": p["maxCPUCoreTime"],
                     "usedCPUCoretime": p["usedCPUCoreTime"],
                     "maxGPUCoreTime": p["maxGPUCoreTime"],
@@ -128,7 +228,6 @@ def create_persons(input):
                     "networkAvgUsage": None,
                     "maxNodeTime": None,
                     "usedNodeTime": None,
-                    "accessType": 1
                 }
 
                 daily_persons_summaries.append(center_daily)
@@ -152,11 +251,20 @@ def create_daily_summaries(instances):
             day_instance["date"] = day
 
         if day_instances:
-            center_daily = handle_instances(day_instances)
+            projects = find_projects(day_instances)
 
-            center_daily
+            for project in projects:
+                project_day_instances = list(filter(lambda x: x["owner_project"] == project, day_instances))
+                project_center_daily = handle_instances(project_day_instances)
+                project_center_daily["ownerProject"] = project
+                daily_centers.append(project_center_daily)
 
-            daily_centers.append(center_daily)
+            # The ones without project
+            no_project_day_instances = list(filter(lambda x: x["owner_project"] == None, day_instances))
+            if no_project_day_instances:
+                center_daily = handle_instances(no_project_day_instances)
+                center_daily["ownerProject"] = "None"
+                daily_centers.append(center_daily)
 
     return daily_centers
 
